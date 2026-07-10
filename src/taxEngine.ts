@@ -29,6 +29,9 @@ export interface PayrollResult {
     totalSavings: number;
     taxResult: TaxResult;
     gratuityInCTC: boolean;
+    pfAdmin: number;
+    edli: number;
+    bonus: number;
 }
 
 // Tax Engine: FY 2026-27 (New Tax Regime) Slabs, Rebates, & Marginal Relief
@@ -125,38 +128,45 @@ export function calculateNewRegimeTax(taxableIncome: number): TaxResult {
 export function payrollEngine(ctc: number, optionType: number, gratuityInCTC: boolean): PayrollResult {
     const basic = ctc * 0.50; // New Wage Code standard 50%
     const hra = basic * 0.40;
-    const gratuity = basic * 0.0481;
+    const gratuity = gratuityInCTC ? (basic * 0.0481) : 0;
+    const bonus = basic * 0.08333; // 8.333% of Basic
     
     let er_pf = 0;
     let er_nps = 0;
     let ee_pf = 0;
+    let pf_basis = 0;
 
     if (optionType === 1) {
         // Minimalist: Capped EPF basic of ₹15,000 monthly (₹1,80,000 annualized)
-        const epf_basis = Math.min(basic, 15000 * 12);
-        er_pf = epf_basis * 0.12; 
+        pf_basis = Math.min(basic, 15000 * 12);
+        er_pf = pf_basis * 0.12; 
         er_nps = 0;
-        ee_pf = epf_basis * 0.12;
+        ee_pf = pf_basis * 0.12;
     } else if (optionType === 2) {
         // Traditional: Full EPF
-        er_pf = basic * 0.12;
+        pf_basis = basic;
+        er_pf = pf_basis * 0.12;
         er_nps = 0;
-        ee_pf = basic * 0.12;
+        ee_pf = pf_basis * 0.12;
     } else if (optionType === 3) {
         // Optimised: Full EPF + 14% NPS
-        er_pf = basic * 0.12;
+        pf_basis = basic;
+        er_pf = pf_basis * 0.12;
         er_nps = basic * 0.14;
-        ee_pf = basic * 0.12;
+        ee_pf = pf_basis * 0.12;
     }
 
-    // Balancing Special Allowance: Gratuity deduction depends on gratuityInCTC flag
-    const deductionBase = basic + hra + er_pf + er_nps + (gratuityInCTC ? gratuity : 0);
+    const pfAdmin = pf_basis * 0.005; // 0.5% PF Admin Charges
+    const edli = Math.min(basic, 15000 * 12) * 0.005; // 0.5% EDLI Contribution (capped at 15k monthly basic)
+
+    // Balancing Special Allowance: Deducted from Special Allowance so that total CTC remains neutral
+    const deductionBase = basic + hra + er_pf + pfAdmin + edli + er_nps + gratuity + bonus;
     let specialAllowance = ctc - deductionBase;
     if (specialAllowance < 0) {
         specialAllowance = 0; // Avoid negative bounds for low CTC
     }
 
-    const grossSalary = basic + hra + specialAllowance; 
+    const grossSalary = basic + hra + specialAllowance + bonus; 
     let taxableBase = grossSalary - 75000; // Deduct Standard Deduction
     if (taxableBase < 0) taxableBase = 0;
 
@@ -169,8 +179,8 @@ export function payrollEngine(ctc: number, optionType: number, gratuityInCTC: bo
     // Takehome: gross - tax - employee contribution
     const monthlyTakehome = monthlyGross - monthlyTax - monthlyEePf;
     
-    // Savings = Employer EPF + Employer NPS + Employee EPF + Gratuity
-    const totalSavings = er_pf + er_nps + ee_pf + gratuity;
+    // Savings = Employer EPF + Employer NPS + Employee EPF + Gratuity + EDLI
+    const totalSavings = er_pf + er_nps + ee_pf + gratuity + edli;
 
     return {
         basic,
@@ -186,6 +196,9 @@ export function payrollEngine(ctc: number, optionType: number, gratuityInCTC: bo
         monthlyTakehome,
         totalSavings,
         taxResult,
-        gratuityInCTC
+        gratuityInCTC,
+        pfAdmin,
+        edli,
+        bonus
     };
 }

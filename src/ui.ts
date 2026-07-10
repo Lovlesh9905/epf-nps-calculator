@@ -91,7 +91,10 @@ export function updateUIDashboard(ctc: number, currentSelectedOption: number, gr
         const elementsToUpdate = {
             basic: document.getElementById(`opt${opt}_basic`),
             hra: document.getElementById(`opt${opt}_hra`),
+            bonus: document.getElementById(`opt${opt}_bonus`),
             er_pf: document.getElementById(`opt${opt}_er_pf`),
+            pf_admin: document.getElementById(`opt${opt}_pf_admin`),
+            edli: document.getElementById(`opt${opt}_edli`),
             er_nps: document.getElementById(`opt${opt}_er_nps`),
             gratuity: document.getElementById(`opt${opt}_gratuity`),
             special: document.getElementById(`opt${opt}_special`),
@@ -109,7 +112,10 @@ export function updateUIDashboard(ctc: number, currentSelectedOption: number, gr
 
         if (elementsToUpdate.basic) elementsToUpdate.basic.innerText = formatINR(res.basic);
         if (elementsToUpdate.hra) elementsToUpdate.hra.innerText = formatINR(res.hra);
+        if (elementsToUpdate.bonus) elementsToUpdate.bonus.innerText = formatINR(res.bonus);
         if (elementsToUpdate.er_pf) elementsToUpdate.er_pf.innerText = formatINR(res.er_pf);
+        if (elementsToUpdate.pf_admin) elementsToUpdate.pf_admin.innerText = formatINR(res.pfAdmin);
+        if (elementsToUpdate.edli) elementsToUpdate.edli.innerText = formatINR(res.edli);
         if (elementsToUpdate.er_nps) elementsToUpdate.er_nps.innerText = formatINR(res.er_nps);
         if (elementsToUpdate.gratuity) elementsToUpdate.gratuity.innerText = gratuityInCTC ? formatINR(res.gratuity) : "₹0";
         if (elementsToUpdate.special) elementsToUpdate.special.innerText = formatINR(res.allowance);
@@ -121,7 +127,7 @@ export function updateUIDashboard(ctc: number, currentSelectedOption: number, gr
         if (elementsToUpdate.takehome) elementsToUpdate.takehome.innerText = formatINR(res.monthlyTakehome) + " / mo";
 
         const annualTakehome = res.monthlyTakehome * 12;
-        const totalOutlay = annualTakehome + res.annualTax + res.totalSavings;
+        const totalOutlay = annualTakehome + res.annualTax + res.totalSavings + res.pfAdmin;
 
         if (elementsToUpdate.sum_takehome) elementsToUpdate.sum_takehome.innerText = formatINR(annualTakehome);
         if (elementsToUpdate.sum_tax) elementsToUpdate.sum_tax.innerText = formatINR(res.annualTax);

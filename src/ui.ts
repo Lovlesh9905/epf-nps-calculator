@@ -50,8 +50,7 @@ export function renderTaxBreakdown(optionResult: PayrollResult): void {
     // Update Summary labels
     const lblGross = document.getElementById('lbl_gross');
     if (lblGross) {
-        const stdDed = optionResult.taxRegime === "old" ? 50000 : 75000;
-        lblGross.innerText = formatINR(optionResult.taxableBase + stdDed + optionResult.deductionsTotal);
+        lblGross.innerText = formatINR(optionResult.totalGrossTaxable);
     }
 
     const lblSlabTax = document.getElementById('lbl_slab_tax');
@@ -136,7 +135,8 @@ export function updateUIDashboard(
     currentSelectedOption: number, 
     gratuityInCTC: boolean,
     taxRegime: "new" | "old" = "new",
-    deductions?: DeductionsInput
+    deductions?: DeductionsInput,
+    performanceBonus: number = 0
 ): void {
     const results: { [key: number]: PayrollResult } = {};
 
@@ -164,7 +164,7 @@ export function updateUIDashboard(
 
     // Calculate for all three options
     for (let opt = 1; opt <= 3; opt++) {
-        const res = payrollEngine(ctc, opt, gratuityInCTC, taxRegime, deductions);
+        const res = payrollEngine(ctc, opt, gratuityInCTC, taxRegime, deductions, performanceBonus);
         results[opt] = res;
 
         // 1. Update Detailed Table Cell elements
@@ -180,6 +180,8 @@ export function updateUIDashboard(
             gratuity: document.getElementById(`opt${opt}_gratuity`),
             special: document.getElementById(`opt${opt}_special`),
             ctc: document.getElementById(`opt${opt}_ctc`),
+            gross_ctc: document.getElementById(`opt${opt}_gross_ctc`),
+            perf_bonus_table: document.getElementById(`opt${opt}_perf_bonus_table`),
             gross: document.getElementById(`opt${opt}_gross`),
             applied_regime: document.getElementById(`opt${opt}_applied_regime`),
             std_ded: document.getElementById(`opt${opt}_std_ded`),
@@ -205,7 +207,9 @@ export function updateUIDashboard(
         if (elementsToUpdate.gratuity) elementsToUpdate.gratuity.innerText = gratuityInCTC ? formatINR(res.gratuity) : "₹0";
         if (elementsToUpdate.special) elementsToUpdate.special.innerText = formatINR(res.allowance);
         if (elementsToUpdate.ctc) elementsToUpdate.ctc.innerText = formatINR(ctc);
-        if (elementsToUpdate.gross) elementsToUpdate.gross.innerText = formatINR(res.grossSalary);
+        if (elementsToUpdate.gross_ctc) elementsToUpdate.gross_ctc.innerText = formatINR(res.grossSalary);
+        if (elementsToUpdate.perf_bonus_table) elementsToUpdate.perf_bonus_table.innerText = formatINR(res.performanceBonus);
+        if (elementsToUpdate.gross) elementsToUpdate.gross.innerText = formatINR(res.totalGrossTaxable);
         
         if (elementsToUpdate.applied_regime) {
             elementsToUpdate.applied_regime.innerText = res.taxRegime === "old" ? "Old Regime" : "New Regime";
@@ -258,7 +262,7 @@ export function updateUIDashboard(
         const pctSavings = document.getElementById(`pct_opt${opt}_savings`);
         if (pctSavings) pctSavings.innerText = savingsPct + "%";
 
-        const annualTakehome = res.monthlyTakehome * 12;
+        const annualTakehome = res.monthlyTakehome * 12 + res.performanceBonus;
         const totalOutlay = annualTakehome + res.annualTax + res.totalSavings + res.pfAdmin;
 
         if (elementsToUpdate.sum_takehome) elementsToUpdate.sum_takehome.innerText = formatINR(annualTakehome);

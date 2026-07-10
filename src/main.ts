@@ -5,6 +5,7 @@ import { DeductionsInput } from './taxEngine';
 let currentCTC = 3600000;
 let currentSelectedOption = 3; // Default option for breakdown view (Option 3)
 let activeRegime: "new" | "old" = "new";
+let performanceBonusState = 0; // Performance Bonus outside CTC
 
 const deductionsState: DeductionsInput = {
     voluntary80c: 100000,
@@ -18,6 +19,7 @@ const deductionsState: DeductionsInput = {
 // Element References
 const ctcInput = document.getElementById('ctcInput') as HTMLInputElement | null;
 const ctcSlider = document.getElementById('ctcSlider') as HTMLInputElement | null;
+const perfBonusInput = document.getElementById('perfBonusInput') as HTMLInputElement | null;
 const gratuityCheckbox = document.getElementById('gratuityInCtc') as HTMLInputElement | null;
 const accordionHeader = document.getElementById('accordionHeader');
 const tabs = [
@@ -75,7 +77,7 @@ function updateCTC(val: number): void {
 
 // Recalculate and update the screen
 function triggerRecalculate(): void {
-    updateUIDashboard(currentCTC, currentSelectedOption, isGratuityInCTC(), activeRegime, deductionsState);
+    updateUIDashboard(currentCTC, currentSelectedOption, isGratuityInCTC(), activeRegime, deductionsState, performanceBonusState);
 }
 
 // Select breakdown tab option
@@ -116,14 +118,24 @@ function initEventListeners(): void {
         });
     }
 
-    // 3. Gratuity checkbox toggle event
+    // 3. Performance Bonus input event
+    if (perfBonusInput) {
+        perfBonusInput.addEventListener('input', (e) => {
+            const target = e.target as HTMLInputElement;
+            const val = parseFloat(target.value);
+            performanceBonusState = isNaN(val) ? 0 : val;
+            triggerRecalculate();
+        });
+    }
+
+    // 4. Gratuity checkbox toggle event
     if (gratuityCheckbox) {
         gratuityCheckbox.addEventListener('change', () => {
             triggerRecalculate();
         });
     }
 
-    // 4. Preset button clicks
+    // 5. Preset button clicks
     presets.forEach(preset => {
         const btn = document.getElementById(preset.id);
         if (btn) {
@@ -133,14 +145,14 @@ function initEventListeners(): void {
         }
     });
 
-    // 5. Accordion Toggle
+    // 6. Accordion Toggle
     if (accordionHeader) {
         accordionHeader.addEventListener('click', () => {
             toggleAccordion();
         });
     }
 
-    // 6. Option tabs switching
+    // 7. Option tabs switching
     tabs.forEach((tab, index) => {
         if (tab) {
             tab.addEventListener('click', () => {
@@ -149,7 +161,7 @@ function initEventListeners(): void {
         }
     });
 
-    // 7. Regime toggle clicks
+    // 8. Regime toggle clicks
     if (regimeNewBtn && regimeOldBtn) {
         regimeNewBtn.addEventListener('click', () => {
             activeRegime = "new";
@@ -167,7 +179,7 @@ function initEventListeners(): void {
         });
     }
 
-    // 8. Bind deduction inputs
+    // 9. Bind deduction inputs
     const bindDeductionInput = (el: HTMLInputElement | null, key: keyof DeductionsInput) => {
         if (el) {
             el.addEventListener('input', (e) => {

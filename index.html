@@ -63,6 +63,19 @@
                     </div>
                 </div>
 
+                <!-- Performance Bonus (Outside CTC) Input -->
+                <div style="margin-top: 15px; margin-bottom: 15px;">
+                    <label style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-secondary); display: block; margin-bottom: 5px;">
+                        Performance Bonus (Outside CTC)
+                    </label>
+                    <div class="deduction-input-wrapper">
+                        <span class="currency-symbol" style="left: 12px; color: var(--color-text-secondary); font-weight: 600;">₹</span>
+                        <input type="number" id="perfBonusInput" value="0" min="0" max="5000000" step="10000" 
+                               style="padding: 10px 12px 10px 30px; font-size: 1.1rem; border-radius: 8px; background: #0f172a; border: 1px solid var(--border-card); color: var(--color-text-primary); outline: none; width: 100%;">
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">This is added on top of the CTC for tax calculations (kept at ₹0 by default).</span>
+                </div>
+
                 <!-- Gratuity Option Toggle -->
                 <div class="gratuity-toggle-wrapper">
                     <label class="toggle-switch">
@@ -457,7 +470,27 @@
 
                 <tr class="section-title"><td colspan="4" id="lbl_tax_pipeline_header">D. Taxation Pipeline (New Tax Regime Slabs)</td></tr>
                 <tr>
-                    <td class="row-header">Gross Taxable Salary</td>
+                    <td class="row-header">
+                        Gross Salary from CTC Basket
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Gross salary derived from fixed CTC components (Basic + HRA + Special Allowance + Bonus + Conveyance).</span>
+                        </div>
+                    </td>
+                    <td id="opt1_gross_ctc">₹0</td><td id="opt2_gross_ctc">₹0</td><td id="opt3_gross_ctc">₹0</td>
+                </tr>
+                <tr>
+                    <td class="row-header">
+                        Performance Bonus (Outside CTC)
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Additional variable performance bonus paid on top of the base CTC.</span>
+                        </div>
+                    </td>
+                    <td id="opt1_perf_bonus_table">₹0</td><td id="opt2_perf_bonus_table">₹0</td><td id="opt3_perf_bonus_table">₹0</td>
+                </tr>
+                <tr style="font-weight: bold; background: rgba(255,255,255,0.02);">
+                    <td class="row-header">Total Gross Taxable Salary</td>
                     <td id="opt1_gross">₹0</td><td id="opt2_gross">₹0</td><td id="opt3_gross">₹0</td>
                 </tr>
                 <tr>

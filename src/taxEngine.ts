@@ -56,6 +56,8 @@ export interface PayrollResult {
     deductionsTotal: number;
     conveyance: number;
     deductionsBreakdown: DeductionRowDetail[];
+    totalGrossTaxable: number;
+    performanceBonus: number;
 }
 
 // Tax Engine: FY 2026-27 (New Tax Regime) Slabs, Rebates, & Marginal Relief
@@ -239,7 +241,8 @@ export function payrollEngine(
         homeLoanInterest: 0,
         monthlyRent: 0,
         otherExemptions: 0
-    }
+    },
+    performanceBonus: number = 0
 ): PayrollResult {
     const basic = ctc * 0.50; // New Wage Code standard 50%
     const hra = basic * 0.40;
@@ -316,7 +319,8 @@ export function payrollEngine(
 
     const deductionsTotal = hraExemption + deduction80C + voluntaryNps + healthInsurance + homeLoanInterest + otherExemptions;
 
-    let taxableBase = grossSalary - standardDeduction - deductionsTotal + taxableEmployerNps;
+    const totalGrossTaxable = grossSalary + performanceBonus;
+    let taxableBase = totalGrossTaxable - standardDeduction - deductionsTotal + taxableEmployerNps;
     if (taxableBase < 0) taxableBase = 0;
 
     const taxResult = taxRegime === "old" ? calculateOldRegimeTax(taxableBase) : calculateNewRegimeTax(taxableBase);
@@ -325,7 +329,7 @@ export function payrollEngine(
     const monthlyTax = taxResult.totalTax / 12;
     const monthlyEePf = ee_pf / 12;
     
-    // Takehome: gross - tax - employee contribution
+    // Takehome: gross - tax - employee contribution (excluding performance bonus from regular monthly cash)
     const monthlyTakehome = monthlyGross - monthlyTax - monthlyEePf;
     
     // Savings = Employer EPF + Employer NPS + Employee EPF + Gratuity + EDLI
@@ -420,6 +424,8 @@ export function payrollEngine(
         hraExemption,
         deductionsTotal,
         conveyance,
-        deductionsBreakdown
+        deductionsBreakdown,
+        totalGrossTaxable,
+        performanceBonus
     };
 }

@@ -98,6 +98,14 @@ export function updateUIDashboard(
     if (badgeRegime) {
         badgeRegime.innerText = taxRegime === "old" ? "Old Tax Regime" : "FY 2026-27 | New Tax Regime";
     }
+    const cardOpt3Title = document.getElementById('card_opt3_title');
+    if (cardOpt3Title) {
+        cardOpt3Title.innerText = taxRegime === "old" ? "Optimised (Full EPF + 10% NPS)" : "Optimised (Full EPF + 14% NPS)";
+    }
+    const lblNpsHeader = document.getElementById('lbl_nps_header');
+    if (lblNpsHeader) {
+        lblNpsHeader.innerText = taxRegime === "old" ? "Employer NPS Contribution (10%)" : "Employer NPS Contribution (14%)";
+    }
 
     // Calculate for all three options
     for (let opt = 1; opt <= 3; opt++) {

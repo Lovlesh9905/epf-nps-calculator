@@ -254,10 +254,11 @@ export function payrollEngine(
         er_nps = 0;
         ee_pf = pf_basis * 0.12;
     } else if (optionType === 3) {
-        // Optimised: Full EPF + 14% NPS (in New Regime, 14% is exempt; in Old Regime, 10% is exempt, 4% is taxable)
+        // Optimised: Full EPF + NPS as per applicable law (14% in New Regime, 10% in Old Regime)
         pf_basis = basic;
         er_pf = pf_basis * 0.12;
-        er_nps = basic * 0.14;
+        const npsRate = taxRegime === "old" ? 0.10 : 0.14;
+        er_nps = basic * npsRate;
         ee_pf = pf_basis * 0.12;
     }
 
@@ -296,10 +297,10 @@ export function payrollEngine(
     const homeLoanInterest = taxRegime === "old" ? Math.min(200000, deductions.homeLoanInterest) : 0;
     const otherExemptions = taxRegime === "old" ? deductions.otherExemptions : 0;
 
-    // Employer NPS Taxable prerequisite: In Old Regime, employer contribution above 10% basic is taxable (Option 3 has 14%)
+    // Employer NPS Taxable prerequisite: In Old Regime, employer contribution above 10% basic is taxable (0% if rate is 10%)
     let taxableEmployerNps = 0;
     if (taxRegime === "old" && optionType === 3) {
-        taxableEmployerNps = basic * 0.04; 
+        taxableEmployerNps = Math.max(0, er_nps - (basic * 0.10));
     }
 
     const deductionsTotal = hraExemption + deduction80C + voluntaryNps + healthInsurance + homeLoanInterest + otherExemptions;

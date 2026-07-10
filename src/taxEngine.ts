@@ -14,6 +14,15 @@ export interface TaxResult {
     slabDetails: TaxSlabDetail[];
 }
 
+export interface DeductionsInput {
+    voluntary80c: number;
+    voluntaryNps: number;
+    healthInsurance: number;
+    homeLoanInterest: number;
+    monthlyRent: number;
+    otherExemptions: number;
+}
+
 export interface PayrollResult {
     basic: number;
     hra: number;
@@ -32,6 +41,9 @@ export interface PayrollResult {
     pfAdmin: number;
     edli: number;
     bonus: number;
+    taxRegime: "new" | "old";
+    hraExemption: number;
+    deductionsTotal: number;
 }
 
 // Tax Engine: FY 2026-27 (New Tax Regime) Slabs, Rebates, & Marginal Relief
@@ -124,8 +136,99 @@ export function calculateNewRegimeTax(taxableIncome: number): TaxResult {
     };
 }
 
+// Tax Engine: Old Tax Regime Slabs & 87A Rebate Rules
+export function calculateOldRegimeTax(taxableIncome: number): TaxResult {
+    const slabs = [
+        { limit: 250000, rate: 0.00 },
+        { limit: 500000, rate: 0.05 },
+        { limit: 1000000, rate: 0.20 },
+        { limit: Infinity, rate: 0.30 }
+    ];
+
+    let tax = 0;
+    let previousLimit = 0;
+    const slabDetails: TaxSlabDetail[] = [];
+
+    for (let i = 0; i < slabs.length; i++) {
+        if (taxableIncome > previousLimit) {
+            const taxableInSlab = Math.min(taxableIncome - previousLimit, slabs[i].limit - previousLimit);
+            const taxInSlab = taxableInSlab * slabs[i].rate;
+            tax += taxInSlab;
+            
+            let rangeText = "";
+            if (previousLimit === 0) {
+                rangeText = "0 to ₹2.5 Lakhs";
+            } else if (slabs[i].limit === Infinity) {
+                rangeText = `Above ₹${(previousLimit / 100000).toFixed(1)} Lakhs`;
+            } else {
+                rangeText = `₹${(previousLimit / 100000).toFixed(1)} to ₹${(slabs[i].limit / 100000).toFixed(1)} Lakhs`;
+            }
+
+            slabDetails.push({
+                range: rangeText,
+                rate: `${slabs[i].rate * 100}%`,
+                taxableInSlab,
+                taxInSlab
+            });
+
+            previousLimit = slabs[i].limit;
+        } else {
+            let rangeText = "";
+            if (slabs[i].limit === Infinity) {
+                rangeText = `Above ₹${(previousLimit / 100000).toFixed(1)} Lakhs`;
+            } else {
+                rangeText = `₹${(previousLimit / 100000).toFixed(1)} to ₹${(slabs[i].limit / 100000).toFixed(1)} Lakhs`;
+            }
+
+            slabDetails.push({
+                range: rangeText,
+                rate: `${slabs[i].rate * 100}%`,
+                taxableInSlab: 0,
+                taxInSlab: 0
+            });
+            
+            previousLimit = slabs[i].limit;
+        }
+    }
+
+    const originalSlabTax = tax;
+    let rebate = 0;
+    let marginalRelief = 0;
+
+    // Apply Section 87A rebate for Old Regime: Up to ₹12,500 if total taxable income <= ₹5 Lakhs
+    if (taxableIncome <= 500000) {
+        rebate = originalSlabTax;
+        tax = 0;
+    }
+
+    const cess = tax * 0.04;
+    const totalTax = tax + cess;
+
+    return {
+        totalTax,
+        originalSlabTax,
+        rebate,
+        marginalRelief,
+        cess,
+        slabDetails
+    };
+}
+
 // Payroll Calculator Engine
-export function payrollEngine(ctc: number, optionType: number, gratuityInCTC: boolean): PayrollResult {
+export function payrollEngine(
+    ctc: number, 
+    optionType: number, 
+    gratuityInCTC: boolean,
+    taxRegime: "new" | "old" = "new",
+    deductions: DeductionsInput = {
+        voluntary80c: 100000,
+        voluntaryNps: 0,
+        healthInsurance: 25000,
+        homeLoanInterest: 0,
+        monthlyRent: 0,
+        otherExemptions: 0
+    }
+): PayrollResult {
     const basic = ctc * 0.50; // New Wage Code standard 50%
     const hra = basic * 0.40;
     const gratuity = gratuityInCTC ? (basic * 0.0481) : 0;
@@ -149,7 +252,7 @@ export function payrollEngine(ctc: number, optionType: number, gratuityInCTC: bo
         er_nps = 0;
         ee_pf = pf_basis * 0.12;
     } else if (optionType === 3) {
-        // Optimised: Full EPF + 14% NPS
+        // Optimised: Full EPF + 14% NPS (in New Regime, 14% is exempt; in Old Regime, 10% is exempt, 4% is taxable)
         pf_basis = basic;
         er_pf = pf_basis * 0.12;
         er_nps = basic * 0.14;
@@ -167,10 +270,42 @@ export function payrollEngine(ctc: number, optionType: number, gratuityInCTC: bo
     }
 
     const grossSalary = basic + hra + specialAllowance + bonus; 
-    let taxableBase = grossSalary - 75000; // Deduct Standard Deduction
+    
+    // Standard deduction
+    const standardDeduction = taxRegime === "old" ? 50000 : 75000;
+
+    // HRA Exemption (only applicable in Old Regime)
+    let hraExemption = 0;
+    if (taxRegime === "old") {
+        const annualRent = deductions.monthlyRent * 12;
+        // Exemption is minimum of Rent - 10% of Basic, actual HRA, or 40% non-metro rate
+        hraExemption = Math.max(0, Math.min(hra, annualRent - (basic * 0.10)));
+    }
+
+    // Section 80C Deduction (Old Regime only, capped at 1.5L, includes employee EPF)
+    let deduction80C = 0;
+    if (taxRegime === "old") {
+        deduction80C = Math.min(150000, deductions.voluntary80c + ee_pf);
+    }
+
+    // Other Old Regime Deductions
+    const voluntaryNps = taxRegime === "old" ? Math.min(50000, deductions.voluntaryNps) : 0;
+    const healthInsurance = taxRegime === "old" ? Math.min(100000, deductions.healthInsurance) : 0;
+    const homeLoanInterest = taxRegime === "old" ? Math.min(200000, deductions.homeLoanInterest) : 0;
+    const otherExemptions = taxRegime === "old" ? deductions.otherExemptions : 0;
+
+    // Employer NPS Taxable prerequisite: In Old Regime, employer contribution above 10% basic is taxable (Option 3 has 14%)
+    let taxableEmployerNps = 0;
+    if (taxRegime === "old" && optionType === 3) {
+        taxableEmployerNps = basic * 0.04; 
+    }
+
+    const deductionsTotal = hraExemption + deduction80C + voluntaryNps + healthInsurance + homeLoanInterest + otherExemptions;
+
+    let taxableBase = grossSalary - standardDeduction - deductionsTotal + taxableEmployerNps;
     if (taxableBase < 0) taxableBase = 0;
 
-    const taxResult = calculateNewRegimeTax(taxableBase);
+    const taxResult = taxRegime === "old" ? calculateOldRegimeTax(taxableBase) : calculateNewRegimeTax(taxableBase);
     
     const monthlyGross = grossSalary / 12;
     const monthlyTax = taxResult.totalTax / 12;
@@ -199,6 +334,9 @@ export function payrollEngine(ctc: number, optionType: number, gratuityInCTC: bo
         gratuityInCTC,
         pfAdmin,
         edli,
-        bonus
+        bonus,
+        taxRegime,
+        hraExemption,
+        deductionsTotal
     };
 }

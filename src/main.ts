@@ -1,8 +1,19 @@
 import { updateUIDashboard, toggleAccordion } from './ui';
+import { DeductionsInput } from './taxEngine';
 
 // Application State
 let currentCTC = 3600000;
 let currentSelectedOption = 3; // Default option for breakdown view (Option 3)
+let activeRegime: "new" | "old" = "new";
+
+const deductionsState: DeductionsInput = {
+    voluntary80c: 100000,
+    voluntaryNps: 0,
+    healthInsurance: 25000,
+    homeLoanInterest: 0,
+    monthlyRent: 0,
+    otherExemptions: 0
+};
 
 // Element References
 const ctcInput = document.getElementById('ctcInput') as HTMLInputElement | null;
@@ -14,6 +25,19 @@ const tabs = [
     document.getElementById('tab2'),
     document.getElementById('tab3')
 ];
+
+// Regime switch references
+const regimeNewBtn = document.getElementById('regime_new');
+const regimeOldBtn = document.getElementById('regime_old');
+const deductionsPanel = document.getElementById('deductionsPanel');
+
+// Deduction input references
+const input80c = document.getElementById('ded_80c') as HTMLInputElement | null;
+const inputRent = document.getElementById('ded_rent') as HTMLInputElement | null;
+const inputNps = document.getElementById('ded_nps') as HTMLInputElement | null;
+const input80d = document.getElementById('ded_80d') as HTMLInputElement | null;
+const input24b = document.getElementById('ded_24b') as HTMLInputElement | null;
+const inputOther = document.getElementById('ded_other') as HTMLInputElement | null;
 
 // Presets mapping
 const presets = [
@@ -51,7 +75,7 @@ function updateCTC(val: number): void {
 
 // Recalculate and update the screen
 function triggerRecalculate(): void {
-    updateUIDashboard(currentCTC, currentSelectedOption, isGratuityInCTC());
+    updateUIDashboard(currentCTC, currentSelectedOption, isGratuityInCTC(), activeRegime, deductionsState);
 }
 
 // Select breakdown tab option
@@ -124,6 +148,42 @@ function initEventListeners(): void {
             });
         }
     });
+
+    // 7. Regime toggle clicks
+    if (regimeNewBtn && regimeOldBtn) {
+        regimeNewBtn.addEventListener('click', () => {
+            activeRegime = "new";
+            regimeNewBtn.classList.add('active');
+            regimeOldBtn.classList.remove('active');
+            if (deductionsPanel) deductionsPanel.classList.add('hidden');
+            triggerRecalculate();
+        });
+        regimeOldBtn.addEventListener('click', () => {
+            activeRegime = "old";
+            regimeOldBtn.classList.add('active');
+            regimeNewBtn.classList.remove('active');
+            if (deductionsPanel) deductionsPanel.classList.remove('hidden');
+            triggerRecalculate();
+        });
+    }
+
+    // 8. Bind deduction inputs
+    const bindDeductionInput = (el: HTMLInputElement | null, key: keyof DeductionsInput) => {
+        if (el) {
+            el.addEventListener('input', (e) => {
+                const target = e.target as HTMLInputElement;
+                const val = parseFloat(target.value);
+                deductionsState[key] = isNaN(val) ? 0 : val;
+                triggerRecalculate();
+            });
+        }
+    };
+    bindDeductionInput(input80c, 'voluntary80c');
+    bindDeductionInput(inputRent, 'monthlyRent');
+    bindDeductionInput(inputNps, 'voluntaryNps');
+    bindDeductionInput(input80d, 'healthInsurance');
+    bindDeductionInput(input24b, 'homeLoanInterest');
+    bindDeductionInput(inputOther, 'otherExemptions');
 }
 
 // Initial Runner

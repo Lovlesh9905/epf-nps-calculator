@@ -1,4 +1,4 @@
-import { payrollEngine, PayrollResult } from './taxEngine';
+import { payrollEngine, PayrollResult, DeductionsInput } from './taxEngine';
 
 // Formatting currency in Indian style (INR)
 export function formatINR(amount: number): string {
@@ -49,7 +49,10 @@ export function renderTaxBreakdown(optionResult: PayrollResult): void {
 
     // Update Summary labels
     const lblGross = document.getElementById('lbl_gross');
-    if (lblGross) lblGross.innerText = formatINR(optionResult.taxableBase + 75000);
+    if (lblGross) {
+        const stdDed = optionResult.taxRegime === "old" ? 50000 : 75000;
+        lblGross.innerText = formatINR(optionResult.taxableBase + stdDed + optionResult.deductionsTotal);
+    }
 
     const lblSlabTax = document.getElementById('lbl_slab_tax');
     if (lblSlabTax) lblSlabTax.innerText = formatINR(taxRes.originalSlabTax);
@@ -73,18 +76,32 @@ export function renderTaxBreakdown(optionResult: PayrollResult): void {
 }
 
 // Update the full UI dashboard
-export function updateUIDashboard(ctc: number, currentSelectedOption: number, gratuityInCTC: boolean): void {
+export function updateUIDashboard(
+    ctc: number, 
+    currentSelectedOption: number, 
+    gratuityInCTC: boolean,
+    taxRegime: "new" | "old" = "new",
+    deductions?: DeductionsInput
+): void {
     const results: { [key: number]: PayrollResult } = {};
 
-    // 0. Update Table Header for Gratuity dynamically
+    // 0. Update Table Header for Gratuity and Tax Regime dynamically
     const lblGratuityHeader = document.getElementById('lbl_gratuity_header');
     if (lblGratuityHeader) {
-        lblGratuityHeader.innerText = gratuityInCTC ? "Gratuity Provision" : "Gratuity Provision (Outside CTC)";
+        lblGratuityHeader.innerText = gratuityInCTC ? "Gratuity Provision (4.81%)" : "Gratuity Provision (Outside CTC)";
+    }
+    const lblTaxPipelineHeader = document.getElementById('lbl_tax_pipeline_header');
+    if (lblTaxPipelineHeader) {
+        lblTaxPipelineHeader.innerText = taxRegime === "old" ? "D. Taxation Pipeline (Old Tax Regime Slabs)" : "D. Taxation Pipeline (New Tax Regime Slabs)";
+    }
+    const badgeRegime = document.querySelector('.badge-regime') as HTMLElement | null;
+    if (badgeRegime) {
+        badgeRegime.innerText = taxRegime === "old" ? "Old Tax Regime" : "FY 2026-27 | New Tax Regime";
     }
 
     // Calculate for all three options
     for (let opt = 1; opt <= 3; opt++) {
-        const res = payrollEngine(ctc, opt, gratuityInCTC);
+        const res = payrollEngine(ctc, opt, gratuityInCTC, taxRegime, deductions);
         results[opt] = res;
 
         // 1. Update Detailed Table Cell elements
@@ -100,6 +117,9 @@ export function updateUIDashboard(ctc: number, currentSelectedOption: number, gr
             special: document.getElementById(`opt${opt}_special`),
             ctc: document.getElementById(`opt${opt}_ctc`),
             gross: document.getElementById(`opt${opt}_gross`),
+            applied_regime: document.getElementById(`opt${opt}_applied_regime`),
+            std_ded: document.getElementById(`opt${opt}_std_ded`),
+            deductions: document.getElementById(`opt${opt}_deductions`),
             taxable_base: document.getElementById(`opt${opt}_taxable_base`),
             tax_table: document.getElementById(`opt${opt}_tax_table`),
             ee_pf: document.getElementById(`opt${opt}_ee_pf`),
@@ -121,18 +141,21 @@ export function updateUIDashboard(ctc: number, currentSelectedOption: number, gr
         if (elementsToUpdate.special) elementsToUpdate.special.innerText = formatINR(res.allowance);
         if (elementsToUpdate.ctc) elementsToUpdate.ctc.innerText = formatINR(ctc);
         if (elementsToUpdate.gross) elementsToUpdate.gross.innerText = formatINR(res.grossSalary);
+        
+        if (elementsToUpdate.applied_regime) {
+            elementsToUpdate.applied_regime.innerText = res.taxRegime === "old" ? "Old Regime" : "New Regime";
+        }
+        if (elementsToUpdate.std_ded) {
+            elementsToUpdate.std_ded.innerText = res.taxRegime === "old" ? "-₹50,000" : "-₹75,000";
+        }
+        if (elementsToUpdate.deductions) {
+            elementsToUpdate.deductions.innerText = res.taxRegime === "old" ? "-" + formatINR(res.deductionsTotal) : "₹0";
+        }
+
         if (elementsToUpdate.taxable_base) elementsToUpdate.taxable_base.innerText = formatINR(res.taxableBase);
         if (elementsToUpdate.tax_table) elementsToUpdate.tax_table.innerText = formatINR(res.annualTax);
         if (elementsToUpdate.ee_pf) elementsToUpdate.ee_pf.innerText = formatINR(res.monthlyEePf) + " / mo";
         if (elementsToUpdate.takehome) elementsToUpdate.takehome.innerText = formatINR(res.monthlyTakehome) + " / mo";
-
-        const annualTakehome = res.monthlyTakehome * 12;
-        const totalOutlay = annualTakehome + res.annualTax + res.totalSavings + res.pfAdmin;
-
-        if (elementsToUpdate.sum_takehome) elementsToUpdate.sum_takehome.innerText = formatINR(annualTakehome);
-        if (elementsToUpdate.sum_tax) elementsToUpdate.sum_tax.innerText = formatINR(res.annualTax);
-        if (elementsToUpdate.sum_savings) elementsToUpdate.sum_savings.innerText = formatINR(res.totalSavings);
-        if (elementsToUpdate.sum_total) elementsToUpdate.sum_total.innerText = formatINR(totalOutlay);
 
         // 2. Update Dashboard Card Values
         const cardTakehome = document.getElementById(`card_opt${opt}_takehome`);
@@ -169,6 +192,14 @@ export function updateUIDashboard(ctc: number, currentSelectedOption: number, gr
 
         const pctSavings = document.getElementById(`pct_opt${opt}_savings`);
         if (pctSavings) pctSavings.innerText = savingsPct + "%";
+
+        const annualTakehome = res.monthlyTakehome * 12;
+        const totalOutlay = annualTakehome + res.annualTax + res.totalSavings + res.pfAdmin;
+
+        if (elementsToUpdate.sum_takehome) elementsToUpdate.sum_takehome.innerText = formatINR(annualTakehome);
+        if (elementsToUpdate.sum_tax) elementsToUpdate.sum_tax.innerText = formatINR(res.annualTax);
+        if (elementsToUpdate.sum_savings) elementsToUpdate.sum_savings.innerText = formatINR(res.totalSavings);
+        if (elementsToUpdate.sum_total) elementsToUpdate.sum_total.innerText = formatINR(totalOutlay);
     }
 
     // 4. Render Selected Detailed Tax Slab Breakdown

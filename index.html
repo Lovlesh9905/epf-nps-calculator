@@ -26,6 +26,15 @@
         <!-- Input Panel -->
         <div class="glass-card">
             <div class="input-panel">
+                <!-- Tax Regime Selector Segmented Control -->
+                <div class="regime-selector-wrapper">
+                    <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-secondary);">Tax Regime Selection</span>
+                    <div class="segmented-control">
+                        <button class="control-btn active" id="regime_new">New Regime (FY 2026-27)</button>
+                        <button class="control-btn" id="regime_old">Old Regime</button>
+                    </div>
+                </div>
+
                 <div class="input-header">
                     <h2>Enter Annual CTC</h2>
                     <div class="presets-wrapper">
@@ -61,6 +70,71 @@
                         <span class="toggle-slider"></span>
                     </label>
                     <span class="gratuity-toggle-label">Include Gratuity in CTC (Deduct 4.81% Basic provision from CTC basket)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Old Regime Deductions Panel (Hidden by default) -->
+        <div class="glass-card hidden" id="deductionsPanel">
+            <h2 style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; margin-bottom: 5px;">
+                 Old Regime Exemptions & Deductions
+            </h2>
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 15px;">
+                Configure tax-saving investments to see if the Old Regime yields a higher take-home salary.
+            </p>
+            <div class="deductions-grid">
+                <div class="deduction-item">
+                    <label>Voluntary 80C (PPF, ELSS, etc.)</label>
+                    <div class="deduction-input-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" id="ded_80c" value="100000" min="0" max="150000" step="5000">
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">Employee EPF is automatically added to this (total capped at ₹1.5 Lakhs).</span>
+                </div>
+                
+                <div class="deduction-item">
+                    <label>Monthly Rent Paid (HRA Exemption)</label>
+                    <div class="deduction-input-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" id="ded_rent" value="0" min="0" max="1000000" step="1000">
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">HRA exemption calculates as Rent minus 10% of Basic (capped at HRA).</span>
+                </div>
+
+                <div class="deduction-item">
+                    <label>Voluntary NPS (Sec 80CCD(1B))</label>
+                    <div class="deduction-input-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" id="ded_nps" value="0" min="0" max="50000" step="5000">
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">Deduction for personal contribution to NPS (capped at ₹50,000).</span>
+                </div>
+
+                <div class="deduction-item">
+                    <label>Health Insurance Premium (Sec 80D)</label>
+                    <div class="deduction-input-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" id="ded_80d" value="25000" min="0" max="100000" step="5000">
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">Includes premium for self, family, and senior citizen parents.</span>
+                </div>
+
+                <div class="deduction-item">
+                    <label>Home Loan Interest (Sec 24b)</label>
+                    <div class="deduction-input-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" id="ded_24b" value="0" min="0" max="200000" step="10000">
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">Deduction on home loan interest for self-occupied property (max ₹2 Lakhs).</span>
+                </div>
+
+                <div class="deduction-item">
+                    <label>Other Exemptions (LTA, Books, etc.)</label>
+                    <div class="deduction-input-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" id="ded_other" value="0" min="0" max="1000000" step="5000">
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">Any other tax-free allowances/exemptions.</span>
                 </div>
             </div>
         </div>
@@ -347,14 +421,28 @@
                     <td id="opt1_ctc">₹0</td><td id="opt2_ctc">₹0</td><td id="opt3_ctc">₹0</td>
                 </tr>
 
-                <tr class="section-title"><td colspan="4">D. Taxation Pipeline (New Tax Regime Slabs)</td></tr>
+                <tr class="section-title"><td colspan="4" id="lbl_tax_pipeline_header">D. Taxation Pipeline (New Tax Regime Slabs)</td></tr>
                 <tr>
                     <td class="row-header">Gross Taxable Salary</td>
                     <td id="opt1_gross">₹0</td><td id="opt2_gross">₹0</td><td id="opt3_gross">₹0</td>
                 </tr>
                 <tr>
+                    <td class="row-header">Tax Regime Applied</td>
+                    <td id="opt1_applied_regime">New Regime</td><td id="opt2_applied_regime">New Regime</td><td id="opt3_applied_regime">New Regime</td>
+                </tr>
+                <tr>
                     <td class="row-header">Standard Deduction</td>
-                    <td>-₹75,000</td><td>-₹75,000</td><td>-₹75,000</td>
+                    <td id="opt1_std_ded">-₹75,000</td><td id="opt2_std_ded">-₹75,000</td><td id="opt3_std_ded">-₹75,000</td>
+                </tr>
+                <tr>
+                    <td class="row-header">
+                        Tax Exemptions & Deductions
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Total deductions claimed under the Old Regime (80C, HRA, 80D, 24b, etc.). Always ₹0 under the New Tax Regime.</span>
+                        </div>
+                    </td>
+                    <td id="opt1_deductions">-₹0</td><td id="opt2_deductions">-₹0</td><td id="opt3_deductions">-₹0</td>
                 </tr>
                 <tr>
                     <td class="row-header">Net Taxable Income Base</td>

@@ -109,6 +109,7 @@ export function updateUIDashboard(
             basic: document.getElementById(`opt${opt}_basic`),
             hra: document.getElementById(`opt${opt}_hra`),
             bonus: document.getElementById(`opt${opt}_bonus`),
+            conveyance: document.getElementById(`opt${opt}_conveyance`),
             er_pf: document.getElementById(`opt${opt}_er_pf`),
             pf_admin: document.getElementById(`opt${opt}_pf_admin`),
             edli: document.getElementById(`opt${opt}_edli`),
@@ -133,6 +134,7 @@ export function updateUIDashboard(
         if (elementsToUpdate.basic) elementsToUpdate.basic.innerText = formatINR(res.basic);
         if (elementsToUpdate.hra) elementsToUpdate.hra.innerText = formatINR(res.hra);
         if (elementsToUpdate.bonus) elementsToUpdate.bonus.innerText = formatINR(res.bonus);
+        if (elementsToUpdate.conveyance) elementsToUpdate.conveyance.innerText = formatINR(res.conveyance);
         if (elementsToUpdate.er_pf) elementsToUpdate.er_pf.innerText = formatINR(res.er_pf);
         if (elementsToUpdate.pf_admin) elementsToUpdate.pf_admin.innerText = formatINR(res.pfAdmin);
         if (elementsToUpdate.edli) elementsToUpdate.edli.innerText = formatINR(res.edli);

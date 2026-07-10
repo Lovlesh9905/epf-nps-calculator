@@ -44,6 +44,7 @@ export interface PayrollResult {
     taxRegime: "new" | "old";
     hraExemption: number;
     deductionsTotal: number;
+    conveyance: number;
 }
 
 // Tax Engine: FY 2026-27 (New Tax Regime) Slabs, Rebates, & Marginal Relief
@@ -233,6 +234,7 @@ export function payrollEngine(
     const hra = basic * 0.40;
     const gratuity = gratuityInCTC ? (basic * 0.0481) : 0;
     const bonus = basic * 0.08333; // 8.333% of Basic
+    const conveyance = 19200; // Conveyance Allowance
     
     let er_pf = 0;
     let er_nps = 0;
@@ -263,13 +265,13 @@ export function payrollEngine(
     const edli = Math.min(basic, 15000 * 12) * 0.005; // 0.5% EDLI Contribution (capped at 15k monthly basic)
 
     // Balancing Special Allowance: Deducted from Special Allowance so that total CTC remains neutral
-    const deductionBase = basic + hra + er_pf + pfAdmin + edli + er_nps + gratuity + bonus;
+    const deductionBase = basic + hra + er_pf + pfAdmin + edli + er_nps + gratuity + bonus + conveyance;
     let specialAllowance = ctc - deductionBase;
     if (specialAllowance < 0) {
         specialAllowance = 0; // Avoid negative bounds for low CTC
     }
 
-    const grossSalary = basic + hra + specialAllowance + bonus; 
+    const grossSalary = basic + hra + specialAllowance + bonus + conveyance; 
     
     // Standard deduction
     const standardDeduction = taxRegime === "old" ? 50000 : 75000;
@@ -337,6 +339,7 @@ export function payrollEngine(
         bonus,
         taxRegime,
         hraExemption,
-        deductionsTotal
+        deductionsTotal,
+        conveyance
     };
 }

@@ -23,6 +23,16 @@ export interface DeductionsInput {
     otherExemptions: number;
 }
 
+export interface DeductionRowDetail {
+    section: string;
+    userInput: number;
+    ctcMatch: number;
+    totalClaimed: number;
+    limit: string;
+    allowed: number;
+    taxable: number;
+}
+
 export interface PayrollResult {
     basic: number;
     hra: number;
@@ -45,6 +55,7 @@ export interface PayrollResult {
     hraExemption: number;
     deductionsTotal: number;
     conveyance: number;
+    deductionsBreakdown: DeductionRowDetail[];
 }
 
 // Tax Engine: FY 2026-27 (New Tax Regime) Slabs, Rebates, & Marginal Relief
@@ -320,6 +331,73 @@ export function payrollEngine(
     // Savings = Employer EPF + Employer NPS + Employee EPF + Gratuity + EDLI
     const totalSavings = er_pf + er_nps + ee_pf + gratuity + edli;
 
+    const annualRent = deductions.monthlyRent * 12;
+    const deductionsBreakdown: DeductionRowDetail[] = [
+        {
+            section: "Section 80C (PPF, ELSS, EPF)",
+            userInput: taxRegime === "old" ? deductions.voluntary80c : 0,
+            ctcMatch: taxRegime === "old" ? ee_pf : 0,
+            totalClaimed: taxRegime === "old" ? (deductions.voluntary80c + ee_pf) : 0,
+            limit: "₹1,50,000",
+            allowed: deduction80C,
+            taxable: taxRegime === "old" ? Math.max(0, (deductions.voluntary80c + ee_pf) - deduction80C) : 0
+        },
+        {
+            section: "HRA Exemption (Sec 10(13A))",
+            userInput: taxRegime === "old" ? annualRent : 0,
+            ctcMatch: hra,
+            totalClaimed: taxRegime === "old" ? hra : 0,
+            limit: "Min of HRA, Rent-10% basic",
+            allowed: hraExemption,
+            taxable: taxRegime === "old" ? Math.max(0, hra - hraExemption) : 0
+        },
+        {
+            section: "Section 80CCD(1B) (Voluntary NPS)",
+            userInput: taxRegime === "old" ? deductions.voluntaryNps : 0,
+            ctcMatch: 0,
+            totalClaimed: taxRegime === "old" ? deductions.voluntaryNps : 0,
+            limit: "₹50,000",
+            allowed: voluntaryNps,
+            taxable: taxRegime === "old" ? Math.max(0, deductions.voluntaryNps - voluntaryNps) : 0
+        },
+        {
+            section: "Section 80D (Health Insurance)",
+            userInput: taxRegime === "old" ? deductions.healthInsurance : 0,
+            ctcMatch: 0,
+            totalClaimed: taxRegime === "old" ? deductions.healthInsurance : 0,
+            limit: "₹25,000 / ₹1,00,000",
+            allowed: healthInsurance,
+            taxable: taxRegime === "old" ? Math.max(0, deductions.healthInsurance - healthInsurance) : 0
+        },
+        {
+            section: "Section 24b (Home Loan Interest)",
+            userInput: taxRegime === "old" ? deductions.homeLoanInterest : 0,
+            ctcMatch: 0,
+            totalClaimed: taxRegime === "old" ? deductions.homeLoanInterest : 0,
+            limit: "₹2,00,000",
+            allowed: homeLoanInterest,
+            taxable: taxRegime === "old" ? Math.max(0, deductions.homeLoanInterest - homeLoanInterest) : 0
+        },
+        {
+            section: "Other Exemptions (LTA, etc.)",
+            userInput: taxRegime === "old" ? deductions.otherExemptions : 0,
+            ctcMatch: 0,
+            totalClaimed: taxRegime === "old" ? deductions.otherExemptions : 0,
+            limit: "As declared",
+            allowed: otherExemptions,
+            taxable: 0
+        },
+        {
+            section: "Standard Deduction",
+            userInput: 0,
+            ctcMatch: standardDeduction,
+            totalClaimed: standardDeduction,
+            limit: taxRegime === "old" ? "₹50,000" : "₹75,000",
+            allowed: standardDeduction,
+            taxable: 0
+        }
+    ];
+
     return {
         basic,
         hra,
@@ -341,6 +419,7 @@ export function payrollEngine(
         taxRegime,
         hraExemption,
         deductionsTotal,
-        conveyance
+        conveyance,
+        deductionsBreakdown
     };
 }

@@ -73,6 +73,61 @@ export function renderTaxBreakdown(optionResult: PayrollResult): void {
 
     const lblNetTax = document.getElementById('lbl_net_tax');
     if (lblNetTax) lblNetTax.innerText = formatINR(optionResult.annualTax);
+
+    // Render Deductions Breakout Table under Old Tax Regime
+    const dedSection = document.getElementById('oldRegimeDeductionsSection');
+    const dedTbody = document.getElementById('deductionsBreakdownBody');
+    
+    if (dedSection && dedTbody) {
+        if (optionResult.taxRegime === "old" && optionResult.deductionsBreakdown) {
+            dedSection.classList.remove('hidden');
+            dedTbody.innerHTML = '';
+            
+            optionResult.deductionsBreakdown.forEach(row => {
+                const tr = document.createElement('tr');
+                if (row.allowed > 0) {
+                    tr.className = 'slab-row-active';
+                }
+                
+                const sectionTd = document.createElement('td');
+                sectionTd.className = 'row-header';
+                sectionTd.innerText = row.section;
+                
+                const userTd = document.createElement('td');
+                userTd.innerText = row.userInput > 0 ? formatINR(row.userInput) : "₹0";
+                
+                const ctcTd = document.createElement('td');
+                ctcTd.innerText = row.ctcMatch > 0 ? formatINR(row.ctcMatch) : "₹0";
+                
+                const totalTd = document.createElement('td');
+                totalTd.innerText = row.totalClaimed > 0 ? formatINR(row.totalClaimed) : "₹0";
+                
+                const limitTd = document.createElement('td');
+                limitTd.innerText = row.limit;
+                
+                const allowedTd = document.createElement('td');
+                allowedTd.innerText = row.allowed > 0 ? formatINR(row.allowed) : "₹0";
+                
+                const taxableTd = document.createElement('td');
+                taxableTd.innerText = row.taxable > 0 ? formatINR(row.taxable) : "₹0";
+                if (row.taxable > 0) {
+                    taxableTd.style.color = '#ef4444'; // Red for taxable remaining portion
+                    taxableTd.style.fontWeight = 'bold';
+                }
+                
+                tr.appendChild(sectionTd);
+                tr.appendChild(userTd);
+                tr.appendChild(ctcTd);
+                tr.appendChild(totalTd);
+                tr.appendChild(limitTd);
+                tr.appendChild(allowedTd);
+                tr.appendChild(taxableTd);
+                dedTbody.appendChild(tr);
+            });
+        } else {
+            dedSection.classList.add('hidden');
+        }
+    }
 }
 
 // Update the full UI dashboard

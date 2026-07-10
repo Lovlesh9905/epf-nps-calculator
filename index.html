@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleek CTC Restructuring Calculator | FY 2026-27 (New Tax Regime)</title>
+    
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Title Header -->
+    <header>
+        <h1>Dynamic CTC Restructuring Dashboard</h1>
+        <p>Optimize Income Tax & Build Wealth under the New Wage Code Standards</p>
+        <span class="badge-regime">FY 2026-27 | New Tax Regime</span>
+    </header>
+
+    <div class="workspace-grid">
+        <!-- Input Panel -->
+        <div class="glass-card">
+            <div class="input-panel">
+                <div class="input-header">
+                    <h2>Enter Annual CTC</h2>
+                    <div class="presets-wrapper">
+                        <button class="preset-btn" id="btn_preset_6l">₹6L</button>
+                        <button class="preset-btn" id="btn_preset_12l">₹12L</button>
+                        <button class="preset-btn" id="btn_preset_18l">₹18L</button>
+                        <button class="preset-btn" id="btn_preset_24l">₹24L</button>
+                        <button class="preset-btn" id="btn_preset_36l">₹36L</button>
+                        <button class="preset-btn" id="btn_preset_50l">₹50L</button>
+                    </div>
+                </div>
+                
+                <div class="input-wrapper">
+                    <span class="currency-symbol">₹</span>
+                    <input type="number" id="ctcInput" value="3600000" min="100000" max="100000000" step="50000">
+                </div>
+
+                <div class="slider-wrapper">
+                    <input type="range" id="ctcSlider" min="300000" max="6000000" step="50000" value="3600000">
+                    <div class="slider-labels">
+                        <span>₹3L</span>
+                        <span>₹15L</span>
+                        <span>₹30L</span>
+                        <span>₹45L</span>
+                        <span>₹60L+</span>
+                    </div>
+                </div>
+
+                <!-- Gratuity Option Toggle -->
+                <div class="gratuity-toggle-wrapper">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="gratuityInCtc" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="gratuity-toggle-label">Include Gratuity in CTC (Deduct 4.81% Basic provision from CTC basket)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparative Dashboard Cards -->
+    <div class="dashboard-cards">
+        
+        <!-- Option 1: Minimalist -->
+        <div class="option-card" id="card_opt1">
+            <div class="option-badge">Option 1</div>
+            <div class="option-title">Minimalist (15K EPF Cap)</div>
+            
+            <div class="takehome-box">
+                <div class="takehome-label">Net In-Hand / Month</div>
+                <div class="takehome-value" id="card_opt1_takehome">₹0</div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="metric-row">
+                    <span class="metric-label">Annual Income Tax</span>
+                    <span class="metric-value tax" id="card_opt1_tax">₹0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Annual Wealth Built</span>
+                    <span class="metric-value savings" id="card_opt1_savings">₹0</span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-bar">
+                    <div class="chart-segment takehome" id="bar_opt1_takehome" style="width: 60%"></div>
+                    <div class="chart-segment tax" id="bar_opt1_tax" style="width: 20%"></div>
+                    <div class="chart-segment savings" id="bar_opt1_savings" style="width: 20%"></div>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-color takehome"></span>In-Hand (<span id="pct_opt1_takehome">0%</span>)</div>
+                    <div class="legend-item"><span class="legend-color tax"></span>Tax (<span id="pct_opt1_tax">0%</span>)</div>
+                    <div class="legend-item"><span class="legend-color savings"></span>Retirals (<span id="pct_opt1_savings">0%</span>)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Option 2: Traditional -->
+        <div class="option-card" id="card_opt2">
+            <div class="option-badge">Option 2</div>
+            <div class="option-title">Traditional (12% Full EPF)</div>
+            
+            <div class="takehome-box">
+                <div class="takehome-label">Net In-Hand / Month</div>
+                <div class="takehome-value" id="card_opt2_takehome">₹0</div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="metric-row">
+                    <span class="metric-label">Annual Income Tax</span>
+                    <span class="metric-value tax" id="card_opt2_tax">₹0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Annual Wealth Built</span>
+                    <span class="metric-value savings" id="card_opt2_savings">₹0</span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-bar">
+                    <div class="chart-segment takehome" id="bar_opt2_takehome" style="width: 60%"></div>
+                    <div class="chart-segment tax" id="bar_opt2_tax" style="width: 20%"></div>
+                    <div class="chart-segment savings" id="bar_opt2_savings" style="width: 20%"></div>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-color takehome"></span>In-Hand (<span id="pct_opt2_takehome">0%</span>)</div>
+                    <div class="legend-item"><span class="legend-color tax"></span>Tax (<span id="pct_opt2_tax">0%</span>)</div>
+                    <div class="legend-item"><span class="legend-color savings"></span>Retirals (<span id="pct_opt2_savings">0%</span>)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Option 3: Optimised -->
+        <div class="option-card recommended" id="card_opt3">
+            <div class="option-badge">Option 3</div>
+            <div class="option-title">Optimised (Full EPF + 14% NPS)</div>
+            
+            <div class="takehome-box">
+                <div class="takehome-label">Net In-Hand / Month</div>
+                <div class="takehome-value" id="card_opt3_takehome">₹0</div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="metric-row">
+                    <span class="metric-label">Annual Income Tax</span>
+                    <span class="metric-value tax" id="card_opt3_tax">₹0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Annual Wealth Built</span>
+                    <span class="metric-value savings" id="card_opt3_savings">₹0</span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-bar">
+                    <div class="chart-segment takehome" id="bar_opt3_takehome" style="width: 60%"></div>
+                    <div class="chart-segment tax" id="bar_opt3_tax" style="width: 20%"></div>
+                    <div class="chart-segment savings" id="bar_opt3_savings" style="width: 20%"></div>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-color takehome"></span>In-Hand (<span id="pct_opt3_takehome">0%</span>)</div>
+                    <div class="legend-item"><span class="legend-color tax"></span>Tax (<span id="pct_opt3_tax">0%</span>)</div>
+                    <div class="legend-item"><span class="legend-color savings"></span>Retirals (<span id="pct_opt3_savings">0%</span>)</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Interactive Slab Tax Calculator Accordion -->
+    <div class="accordion-panel" id="slabAccordion">
+        <div class="accordion-header" id="accordionHeader">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2563eb;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg>
+                Detailed Income Tax Slab Breakdown (FY 2026-27)
+            </h3>
+            <span class="accordion-icon" id="accordionIcon">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="option-selector">
+                <div class="option-tab active" id="tab1">Option 1 Breakdown</div>
+                <div class="option-tab" id="tab2">Option 2 Breakdown</div>
+                <div class="option-tab" id="tab3">Option 3 Breakdown</div>
+            </div>
+            
+            <table class="slab-table">
+                <thead>
+                    <tr>
+                        <th class="row-header">Income Slab (New Regime)</th>
+                        <th>Tax Rate</th>
+                        <th>Taxable Income in Slab</th>
+                        <th>Calculated Tax</th>
+                    </tr>
+                </thead>
+                <tbody id="slabBreakdownBody">
+                    <!-- Dynamic rendering -->
+                </tbody>
+            </table>
+
+            <div class="tax-summary-box">
+                <div class="summary-item">
+                    <span class="summary-label">Gross Taxable income</span>
+                    <span class="summary-value" id="lbl_gross">₹0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Slab Tax (Before Relief)</span>
+                    <span class="summary-value" id="lbl_slab_tax">₹0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Sec 87A Rebate / Relief</span>
+                    <span class="summary-value relief" id="lbl_relief">₹0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">4% Cess</span>
+                    <span class="summary-value" id="lbl_cess">₹0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Net Tax Payable</span>
+                    <span class="summary-value tax" id="lbl_net_tax">₹0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Breakdown Table -->
+    <div class="glass-card table-section">
+        <h2 class="table-title">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#10b981;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            Comprehensive Compensation Restructuring Details
+        </h2>
+        <table>
+            <thead>
+                <tr>
+                    <th class="row-header">Salary Component (Annualized)</th>
+                    <th>Option 1: Minimalist</th>
+                    <th>Option 2: Traditional</th>
+                    <th>Option 3: Optimised</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="section-title"><td colspan="4">A. Fixed Compensation Components</td></tr>
+                <tr>
+                    <td class="row-header">
+                        Basic Salary
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Set to exactly 50% of CTC to fully comply with the New Wage Code.</span>
+                        </div>
+                    </td>
+                    <td id="opt1_basic">₹0</td><td id="opt2_basic">₹0</td><td id="opt3_basic">₹0</td>
+                </tr>
+                <tr>
+                    <td class="row-header">
+                        House Rent Allowance (HRA)
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">HRA is fixed at 40% of Basic Salary. Note: HRA exemptions are generally not available under the New Tax Regime, but it remains a structured allowance.</span>
+                        </div>
+                    </td>
+                    <td id="opt1_hra">₹0</td><td id="opt2_hra">₹0</td><td id="opt3_hra">₹0</td>
+                </tr>
+                
+                <tr class="section-title"><td colspan="4">B. Retirals & Institutional Allocations (Pre-Tax)</td></tr>
+                <tr>
+                    <td class="row-header">
+                        Employer EPF Contribution
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Company share of EPF. Option 1 caps the calculation at ₹15,000 monthly basic (₹21,600/yr). Option 2 and 3 calculate 12% on full basic.</span>
+                        </div>
+                    </td>
+                    <td id="opt1_er_pf">₹0</td><td id="opt2_er_pf">₹0</td><td id="opt3_er_pf">₹0</td>
+                </tr>
+                <tr>
+                    <td class="row-header">
+                        Employer NPS Contribution
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Exempt under Section 80CCD(2) up to 14% of Basic under the New Tax Regime. Maximized in Option 3.</span>
+                        </div>
+                    </td>
+                    <td id="opt1_er_nps">₹0</td><td id="opt2_er_nps">₹0</td><td id="opt3_er_nps">₹0</td>
+                </tr>
+                <tr>
+                    <td class="row-header">
+                        <span id="lbl_gratuity_header">Gratuity Provision</span>
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Calculated at 4.81% of Basic as a statutory accrual representing retirement benefits. Shows as ₹0 here if excluded from CTC.</span>
+                        </div>
+                    </td>
+                    <td id="opt1_gratuity">₹0</td><td id="opt2_gratuity">₹0</td><td id="opt3_gratuity">₹0</td>
+                </tr>
+
+                <tr class="section-title"><td colspan="4">C. Balancing Basket Component</td></tr>
+                <tr>
+                    <td class="row-header">
+                        Special / Flexi Allowance
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Balancing figure to maintain absolute CTC neutrality: Special Allowance = CTC - (Basic + HRA + Employer EPF + Employer NPS + Gratuity).</span>
+                        </div>
+                    </td>
+                    <td id="opt1_special">₹0</td><td id="opt2_special">₹0</td><td id="opt3_special">₹0</td>
+                </tr>
+                <tr style="background: rgba(255,255,255,0.03); font-weight: bold;">
+                    <td class="row-header">TOTAL LOCKED ANNUAL CTC (A+B+C)</td>
+                    <td id="opt1_ctc">₹0</td><td id="opt2_ctc">₹0</td><td id="opt3_ctc">₹0</td>
+                </tr>
+
+                <tr class="section-title"><td colspan="4">D. Taxation Pipeline (New Tax Regime Slabs)</td></tr>
+                <tr>
+                    <td class="row-header">Gross Taxable Salary</td>
+                    <td id="opt1_gross">₹0</td><td id="opt2_gross">₹0</td><td id="opt3_gross">₹0</td>
+                </tr>
+                <tr>
+                    <td class="row-header">Standard Deduction</td>
+                    <td>-₹75,000</td><td>-₹75,000</td><td>-₹75,000</td>
+                </tr>
+                <tr>
+                    <td class="row-header">Net Taxable Income Base</td>
+                    <td id="opt1_taxable_base">₹0</td><td id="opt2_taxable_base">₹0</td><td id="opt3_taxable_base">₹0</td>
+                </tr>
+                <tr style="color: var(--color-tax); font-weight: bold;">
+                    <td class="row-header">TOTAL ANNUAL TAX PAYABLE (with 4% Cess)</td>
+                    <td id="opt1_tax_table">₹0</td><td id="opt2_tax_table">₹0</td><td id="opt3_tax_table">₹0</td>
+                </tr>
+
+                <tr class="section-title"><td colspan="4">E. Monthly Net Liquidity (Monthly Deliverables)</td></tr>
+                <tr>
+                    <td class="row-header">
+                        Employee Monthly EPF Deduction
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">The employee's matching monthly EPF deduction (12% of basic, capped or uncapped depending on option choice).</span>
+                        </div>
+                    </td>
+                    <td id="opt1_ee_pf">₹0</td><td id="opt2_ee_pf">₹0</td><td id="opt3_ee_pf">₹0</td>
+                </tr>
+                <tr class="highlight">
+                    <td class="row-header">NET MONTHLY TAKE-HOME (In-Hand Cash)</td>
+                    <td id="opt1_takehome">₹0</td><td id="opt2_takehome">₹0</td><td id="opt3_takehome">₹0</td>
+                </tr>
+                
+                <tr class="section-title"><td colspan="4">F. Annualized CTC Allocation Summary</td></tr>
+                <tr>
+                    <td class="row-header">
+                        Annual Take-Home Cash (In-Hand)
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Total annual take-home salary paid in cash (Gross Salary minus Income Tax and Employee EPF).</span>
+                        </div>
+                    </td>
+                    <td id="opt1_sum_takehome">₹0</td><td id="opt2_sum_takehome">₹0</td><td id="opt3_sum_takehome">₹0</td>
+                </tr>
+                <tr>
+                    <td class="row-header">
+                        Annual Income Tax
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Total annual tax payable under the New Tax Regime.</span>
+                        </div>
+                    </td>
+                    <td id="opt1_sum_tax">₹0</td><td id="opt2_sum_tax">₹0</td><td id="opt3_sum_tax">₹0</td>
+                </tr>
+                <tr>
+                    <td class="row-header">
+                        Annual Wealth & Retirals (Investments)
+                        <div class="tooltip">
+                            <span class="info-icon">i</span>
+                            <span class="tooltiptext">Total retirement wealth built annually (includes Employer and Employee EPF, Employer NPS, and Gratuity provision).</span>
+                        </div>
+                    </td>
+                    <td id="opt1_sum_savings">₹0</td><td id="opt2_sum_savings">₹0</td><td id="opt3_sum_savings">₹0</td>
+                </tr>
+                <tr style="background: rgba(59, 130, 246, 0.1); font-weight: bold;">
+                    <td class="row-header">TOTAL EMPLOYER OUTLAY (CTC + Benefits)</td>
+                    <td id="opt1_sum_total">₹0</td><td id="opt2_sum_total">₹0</td><td id="opt3_sum_total">₹0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Compliance Footers -->
+    <footer>
+        <div class="compliance-card">
+            <h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#3b82f6;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                New Wage Code Compliance
+            </h4>
+            <p>Formulated at exactly <strong>50% of CTC for Basic Salary</strong>. This satisfies statutory definitions of "wages" which mandate that allowances and other components must not exceed 50% of the total compensation structure.</p>
+        </div>
+        <div class="compliance-card">
+            <h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#10b981;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Section 80CCD(2) Tax Rules
+            </h4>
+            <p>Under the New Tax Regime, employer's contribution to National Pension System (NPS) is deductible up to <strong>14% of Basic Salary</strong>. Option 3 utilizes this rule to convert high-tax special allowances into tax-exempt retirement capital.</p>
+        </div>
+        <div class="compliance-card">
+            <h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#eab308;"><polygon points="12 2 2 22 22 22"></polygon><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                Section 87A Rebate & Marginal Relief
+            </h4>
+            <p>Income tax is completely zero if net taxable income is <strong>under ₹12 Lakhs</strong>. For income slightly above ₹12 Lakhs, <strong>Marginal Relief</strong> ensures that the tax payable does not exceed the income earned over ₹12 Lakhs.</p>
+        </div>
+    </footer>
+
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

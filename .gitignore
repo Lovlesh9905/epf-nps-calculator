@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.log
+.gemini/
+.agents/
+.system_generated/
+walkthrough.md
+task.md
+implementation_plan.md

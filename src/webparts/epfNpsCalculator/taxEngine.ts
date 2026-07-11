@@ -207,7 +207,7 @@ export function calculateOldRegimeTax(taxableIncome: number): TaxResult {
 
     const originalSlabTax = tax;
     let rebate = 0;
-    let marginalRelief = 0;
+    const marginalRelief = 0;
 
     // Apply Section 87A rebate for Old Regime: Up to ₹12,500 if total taxable income <= ₹5 Lakhs
     if (taxableIncome <= 500000) {

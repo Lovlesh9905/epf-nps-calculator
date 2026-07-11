@@ -1,7 +1,7 @@
 @import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
 
-.epfNpsCalculator {
-  :global {
+:global {
+  .epfNpsCalculator {
     /* CSS Variables for design system */
     --bg-page: #0b0f19;
     --bg-card: rgba(22, 30, 49, 0.7);

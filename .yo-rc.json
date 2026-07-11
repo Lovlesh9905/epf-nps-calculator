@@ -1,0 +1,25 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "epf-nps-calculator-spfx",
+    "environment": "spo",
+    "packageManager": "npm",
+    "componentType": "webpart",
+    "template": "none",
+    "componentName": "EpfNpsCalculator",
+    "componentDescription": "EPF and NPS tax restructuring calculator webpart",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.20.4",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.24.0"
+    },
+    "version": "1.20.0",
+    "libraryName": "epf-nps-calculator-spfx",
+    "libraryId": "6d62e0a4-8bd1-4218-85bd-5ab7d81f3d47",
+    "solutionShortDescription": "epf-nps-calculator-spfx description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false
+  }
+}

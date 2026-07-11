@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "epf-nps-calculator-spfx-client-side-solution",
+    "id": "6d62e0a4-8bd1-4218-85bd-5ab7d81f3d47",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.20.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "epf-nps-calculator-spfx description"
+      },
+      "longDescription": {
+        "default": "epf-nps-calculator-spfx description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "epf-nps-calculator-spfx Feature",
+        "description": "The feature that activates elements of the epf-nps-calculator-spfx solution.",
+        "id": "5b61caf8-27c5-43da-b0e9-22e8eba73d55",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/epf-nps-calculator-spfx.sppkg"
+  }
+}
